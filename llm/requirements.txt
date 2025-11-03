@@ -1,0 +1,19 @@
+# Core MLX dependencies
+mlx>=0.5.0
+mlx-nn>=0.1.0
+
+# Data processing
+transformers>=4.35.0
+datasets>=2.14.0
+tokenizers>=0.15.0
+
+# Optional: Quality filtering
+detoxify>=0.5.0
+
+# Optional: Fine-tuning and RLHF
+trl>=0.7.0
+peft>=0.7.0
+
+# Utilities
+numpy>=1.24.0
+tqdm>=4.66.0

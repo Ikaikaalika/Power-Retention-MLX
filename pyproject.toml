@@ -1,0 +1,54 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "power-retention-mlx"
+version = "0.1.0"
+authors = [{ name = "Tyler Gee", email = "your.email@example.com" }]
+description = "Power Retention module for MLX on Apple Silicon - Linear complexity alternative to attention"
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: MacOS",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "mlx>=0.5.0",
+    "mlx-nn>=0.1.0",
+]
+
+[project.optional-dependencies]
+llm = [
+    "transformers>=4.35.0",
+    "datasets>=2.14.0",
+    "tokenizers>=0.15.0",
+]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+]
+all = [
+    "power-retention-mlx[llm,dev]",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/YOUR_USERNAME/power-retention-mlx"
+"Bug Tracker" = "https://github.com/YOUR_USERNAME/power-retention-mlx/issues"
+"Documentation" = "https://github.com/YOUR_USERNAME/power-retention-mlx/tree/main/docs"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
