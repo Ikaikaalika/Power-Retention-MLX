@@ -5,8 +5,14 @@ The training script is ready! Here's how to start training immediately.
 ## ✅ Quick Start (Works Immediately)
 
 ```bash
-# Ultra-tiny model (fits in 8GB RAM)
-python3 train_llm.py --model tiny --steps 100 --batch-size 1 --seq-len 32
+# Quick validation test (10 seconds)
+python3 train.py --quick-test
+
+# Train ultra-tiny model (fits in 8GB RAM)
+python3 train.py --mode llm --model ultra-tiny --steps 100
+
+# Train tiny model with more steps
+python3 train.py --mode llm --model tiny --steps 100 --batch-size 1 --seq-len 32
 
 # This will train for ~2-3 minutes and create checkpoints
 ```
@@ -24,33 +30,42 @@ python3 train_llm.py --model tiny --steps 100 --batch-size 1 --seq-len 32
 ### Model Sizes
 
 ```bash
+# Quick test (10 seconds)
+python3 train.py --quick-test
+
+# Ultra-tiny (2M params) - Mac with 8GB RAM
+python3 train.py --mode llm --model ultra-tiny --batch-size 1 --seq-len 32
+
 # Tiny (17M params) - Testing
-python3 train_llm.py --model tiny --batch-size 1 --seq-len 32
+python3 train.py --mode llm --model tiny --batch-size 1 --seq-len 32
 
 # Small (125M params) - Mac with 16GB+
-python3 train_llm.py --model small --batch-size 1 --seq-len 64
+python3 train.py --mode llm --model small --batch-size 1 --seq-len 64
 
 # Medium (355M params) - Mac with 32GB+
-python3 train_llm.py --model medium --batch-size 1 --seq-len 64
+python3 train.py --mode llm --model medium --batch-size 1 --seq-len 64
 
 # Large (774M params) - Mac with 64GB+
-python3 train_llm.py --model large --batch-size 1 --seq-len 64
+python3 train.py --mode llm --model large --batch-size 1 --seq-len 64
 ```
 
 ### Training Duration
 
 ```bash
-# Quick test (2-3 minutes)
-python3 train_llm.py --steps 100
+# Quick test (10 seconds)
+python3 train.py --quick-test
 
-# Short train (10-15 minutes)
-python3 train_llm.py --steps 1000
+# Short train (2-3 minutes)
+python3 train.py --mode llm --steps 100
 
-# Medium train (1-2 hours)
-python3 train_llm.py --steps 10000
+# Medium train (10-15 minutes)
+python3 train.py --mode llm --steps 1000
+
+# Long train (1-2 hours)
+python3 train.py --mode llm --steps 10000
 
 # Full train (several hours)
-python3 train_llm.py --steps 100000
+python3 train.py --mode llm --steps 100000
 ```
 
 ### With Real Data
@@ -60,7 +75,7 @@ python3 train_llm.py --steps 100000
 pip install transformers datasets
 
 # Then train with real data
-python3 train_llm.py --real-data --dataset fineweb-edu --num-samples 100000
+python3 train.py --mode llm --real-data --dataset fineweb-edu --num-samples 100000
 ```
 
 ## 💾 Output
@@ -145,17 +160,20 @@ Generated tokens: [9012, 3456, ...]
 ### Out of Memory
 
 ```bash
-# Solution 1: Smaller batch size
-python3 train_llm.py --batch-size 1
+# Solution 1: Quick test mode
+python3 train.py --quick-test
 
-# Solution 2: Shorter sequences
-python3 train_llm.py --seq-len 32
+# Solution 2: Ultra-tiny model
+python3 train.py --mode llm --model ultra-tiny
 
-# Solution 3: Smaller model
-python3 train_llm.py --model tiny
+# Solution 3: Smaller batch size
+python3 train.py --mode llm --batch-size 1
+
+# Solution 4: Shorter sequences
+python3 train.py --mode llm --seq-len 32
 
 # Combination (safest)
-python3 train_llm.py --model tiny --batch-size 1 --seq-len 32
+python3 train.py --mode llm --model ultra-tiny --batch-size 1 --seq-len 32
 ```
 
 ### Slow Training
@@ -175,7 +193,7 @@ python3 train_llm.py --model tiny --batch-size 1 --seq-len 32
 ```bash
 # Make sure you're in the right directory
 cd /path/to/Power-Retention-MLX
-python3 train_llm.py
+python3 train.py --quick-test
 ```
 
 ## 📚 Next Steps After Training
@@ -206,7 +224,8 @@ output = model.generate(prompt, max_new_tokens=50)
 pip install transformers datasets
 
 # Fine-tune
-python3 train_llm.py \
+python3 train.py \
+  --mode llm \
   --real-data \
   --dataset databricks/databricks-dolly-15k \
   --steps 1000 \
@@ -227,33 +246,38 @@ output = model.generate(prompt, max_new_tokens=100)
 
 ```bash
 # Train larger model (if you have the RAM)
-python3 train_llm.py --model small --steps 10000
+python3 train.py --mode llm --model small --steps 10000
 
 # Train longer
-python3 train_llm.py --steps 100000
+python3 train.py --mode llm --steps 100000
 
 # Use real data
-python3 train_llm.py --real-data --num-samples 1000000
+python3 train.py --mode llm --real-data --num-samples 1000000
 ```
 
 ## 🎯 Recommended First Run
 
 ```bash
-# Start with this to verify everything works (3-4 minutes)
-python3 train_llm.py \
-  --model tiny \
+# Start with quick test (10 seconds)
+python3 train.py --quick-test
+
+# Then try ultra-tiny model (1-2 minutes)
+python3 train.py \
+  --mode llm \
+  --model ultra-tiny \
   --steps 200 \
   --batch-size 1 \
   --seq-len 32 \
   --log-interval 10
 
-# If that works, scale up to:
-python3 train_llm.py \
-  --model small \
-  --steps 5000 \
-  --batch-size 2 \
-  --seq-len 128 \
-  --log-interval 100
+# If that works, scale up to tiny (3-4 minutes)
+python3 train.py \
+  --mode llm \
+  --model tiny \
+  --steps 200 \
+  --batch-size 1 \
+  --seq-len 64 \
+  --log-interval 10
 ```
 
 ## 💡 Pro Tips
@@ -269,7 +293,11 @@ python3 train_llm.py \
 **Ready to train? Run this now:**
 
 ```bash
-python3 train_llm.py --model tiny --steps 100 --batch-size 1 --seq-len 32
+# Quick validation (10 seconds)
+python3 train.py --quick-test
+
+# Or start training an LLM
+python3 train.py --mode llm --model ultra-tiny --steps 100
 ```
 
 Training starts immediately! 🚀

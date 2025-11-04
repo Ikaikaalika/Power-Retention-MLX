@@ -47,7 +47,11 @@ Create a custom ultra-tiny config for your Mac:
 
 Then train:
 ```bash
-python3 train_llm.py --model ultra-tiny --steps 1000
+# Quick test (10 seconds)
+python3 train.py --quick-test
+
+# Or train ultra-tiny model
+python3 train.py --mode llm --model ultra-tiny --steps 1000
 ```
 
 ### Option 2: Use Metal Kernels (Inference Only)

@@ -284,12 +284,20 @@ def create_model_config(size: str = "small") -> dict:
     Create model configuration for different sizes.
 
     Args:
-        size: One of 'tiny', 'small', 'medium', 'large', '7b'
+        size: One of 'ultra-tiny', 'tiny', 'small', 'medium', 'large', '7b'
 
     Returns:
         Configuration dictionary
     """
     configs = {
+        "ultra-tiny": {
+            "dim": 64,
+            "num_layers": 3,
+            "vocab_size": 50257,  # GPT-2 tokenizer
+            "max_seq_len": 512,
+            "ffn_mult": 2,
+            "chunk_size": 64,
+        },
         "tiny": {
             "dim": 256,
             "num_layers": 6,
