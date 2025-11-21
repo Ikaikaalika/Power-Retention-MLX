@@ -10,9 +10,13 @@ class PowerRetention(nn.Module):
         self.chunk_size = chunk_size
         self.use_metal_kernels = use_metal_kernels
 
-        if power != 2:
-            raise ValueError("Only p=2 supported; extend for higher.")
-        self.expanded_dim = (dim * (dim + 1)) // 2
+        if power not in [1, 2]:
+            raise ValueError("Only p=1 and p=2 supported.")
+        
+        if power == 1:
+            self.expanded_dim = dim
+        else:
+            self.expanded_dim = (dim * (dim + 1)) // 2
 
         # Learnable projections
         self.w_q = nn.Linear(dim, dim)
@@ -133,6 +137,9 @@ class PowerRetention(nn.Module):
         Returns:
             phi: Features of shape [batch, seq, expanded_dim] or [seq, expanded_dim]
         """
+        if self.power == 1:
+            return x
+
         original_shape = x.shape
         if len(x.shape) == 2:
             x = x.reshape(1, x.shape[0], x.shape[1])
@@ -176,6 +183,9 @@ class PowerRetention(nn.Module):
         Returns:
             phi: Features of shape [seq, expanded_dim]
         """
+        if self.power == 1:
+            return x
+
         seq = x.shape[0]
 
         outputs = self.phi_kernel(

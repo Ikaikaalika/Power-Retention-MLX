@@ -30,6 +30,7 @@ class RetentionBlock(nn.Module):
         ffn_mult: int = 4,
         chunk_size: int = 128,
         dropout: float = 0.0,
+        power: int = 2,
         use_metal: bool = False,
     ):
         super().__init__()
@@ -37,6 +38,7 @@ class RetentionBlock(nn.Module):
         # Power Retention layer
         self.retention = PowerRetention(
             dim=dim,
+            power=power,
             chunk_size=chunk_size,
             use_metal_kernels=use_metal
         )
@@ -114,6 +116,7 @@ class RetentionLLM(nn.Module):
         ffn_mult: int = 4,
         chunk_size: int = 256,
         dropout: float = 0.1,
+        power: int = 2,
         use_metal: bool = False,
         tie_embeddings: bool = True,
     ):
@@ -140,6 +143,7 @@ class RetentionLLM(nn.Module):
                 ffn_mult=ffn_mult,
                 chunk_size=chunk_size,
                 dropout=dropout,
+                power=power,
                 use_metal=use_metal,
             )
             for _ in range(num_layers)

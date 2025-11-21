@@ -86,6 +86,13 @@ Examples:
         default=64,
         help="Dimension for layer mode (default: 64)"
     )
+    parser.add_argument(
+        "--power",
+        type=int,
+        default=2,
+        choices=[1, 2],
+        help="Power for retention (1=linear, 2=quadratic) (default: 2)"
+    )
 
     # LLM model configuration
     parser.add_argument(
@@ -172,7 +179,11 @@ def train_layer(args):
     print()
     print("Configuration:")
     print(f"  Dimension: {args.dim}")
-    print(f"  Expanded dimension: {(args.dim * (args.dim + 1)) // 2}")
+    print(f"  Power: {args.power}")
+    if args.power == 1:
+        print(f"  Expanded dimension: {args.dim}")
+    else:
+        print(f"  Expanded dimension: {(args.dim * (args.dim + 1)) // 2}")
     print(f"  Sequence length: {args.seq_len}")
     print(f"  Batch size: {args.batch_size}")
     print(f"  Training steps: {args.steps}")
@@ -181,7 +192,7 @@ def train_layer(args):
 
     # Create model
     print("🏗️  Creating PowerRetention layer...")
-    model = PowerRetention(dim=args.dim, chunk_size=args.seq_len, use_metal_kernels=False)
+    model = PowerRetention(dim=args.dim, power=args.power, chunk_size=args.seq_len, use_metal_kernels=False)
     print(f"  ✓ Model created")
     print(f"  ✓ Expanded dimensions: {model.expanded_dim}")
     print()
@@ -312,6 +323,7 @@ def train_llm(args):
     print()
     print("Configuration:")
     print(f"  Model size: {args.model}")
+    print(f"  Power: {args.power}")
     print(f"  Training steps: {args.steps}")
     print(f"  Batch size: {args.batch_size}")
     print(f"  Sequence length: {args.seq_len}")
@@ -325,6 +337,7 @@ def train_llm(args):
 
     # Update config with args
     config['max_seq_len'] = args.seq_len
+    config['power'] = args.power
 
     model = RetentionLLM(**config, use_metal=False)  # Training mode
 

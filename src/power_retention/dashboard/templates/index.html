@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Power Retention Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-900 text-white font-sans">
+    <div class="container mx-auto p-6">
+        <header class="flex justify-between items-center mb-8">
+            <h1 class="text-3xl font-bold text-cyan-400">Power Retention MLX</h1>
+            <div class="flex gap-4">
+                <button onclick="startTraining()" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded font-bold">Start Training</button>
+                <button onclick="stopTraining()" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded font-bold">Stop Training</button>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Status Panel -->
+            <div class="bg-gray-800 p-6 rounded-lg shadow-lg">
+                <h2 class="text-xl font-semibold mb-4 text-yellow-400">Training Status</h2>
+                <div class="space-y-2">
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Status:</span>
+                        <span id="status-text" class="font-mono">Idle</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Step:</span>
+                        <span id="step-text" class="font-mono">0</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Current Loss:</span>
+                        <span id="loss-text" class="font-mono">0.0000</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loss Chart -->
+            <div class="bg-gray-800 p-6 rounded-lg shadow-lg">
+                <h2 class="text-xl font-semibold mb-4 text-blue-400">Loss Curve</h2>
+                <canvas id="lossChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Logs -->
+        <div class="mt-6 bg-gray-800 p-6 rounded-lg shadow-lg">
+            <h2 class="text-xl font-semibold mb-4 text-purple-400">Training Logs</h2>
+            <div id="logs-container" class="h-64 overflow-y-auto font-mono text-sm bg-gray-950 p-4 rounded border border-gray-700">
+                <div class="text-gray-500">Waiting for logs...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Chart Setup
+        const ctx = document.getElementById('lossChart').getContext('2d');
+        const lossChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Training Loss',
+                    data: [],
+                    borderColor: 'rgb(34, 211, 238)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        grid: { color: '#374151' }
+                    },
+                    x: {
+                        grid: { color: '#374151' }
+                    }
+                }
+            }
+        });
+
+        // WebSocket Connection
+        const ws = new WebSocket(`ws://${window.location.host}/ws`);
+        
+        ws.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            updateDashboard(data);
+        };
+
+        function updateDashboard(data) {
+            document.getElementById('status-text').innerText = data.is_training ? "Training..." : "Idle";
+            document.getElementById('status-text').className = data.is_training ? "font-mono text-green-400" : "font-mono text-gray-400";
+            
+            document.getElementById('step-text').innerText = data.step;
+            document.getElementById('loss-text').innerText = data.loss.toFixed(4);
+
+            // Update Chart (mock data for now)
+            if (data.is_training) {
+                const time = new Date().toLocaleTimeString();
+                lossChart.data.labels.push(data.step);
+                lossChart.data.datasets[0].data.push(data.loss);
+                
+                if (lossChart.data.labels.length > 50) {
+                    lossChart.data.labels.shift();
+                    lossChart.data.datasets[0].data.shift();
+                }
+                lossChart.update();
+                
+                // Add log
+                const logs = document.getElementById('logs-container');
+                const logEntry = document.createElement('div');
+                logEntry.innerText = `[${time}] Step ${data.step}: Loss = ${data.loss.toFixed(4)}`;
+                logs.prepend(logEntry);
+            }
+        }
+
+        async function startTraining() {
+            await fetch('/api/start_training', { method: 'POST' });
+        }
+
+        async function stopTraining() {
+            await fetch('/api/stop_training', { method: 'POST' });
+        }
+    </script>
+</body>
+</html>
